@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 
 const count = ref(0)
 
-const tasks = ref<Array<{ label: string; id: string; isDone: boolean }>>([])
+const tasks = reactive<Array<{ label: string; id: string; isDone: boolean }>>([])
 const taskName = ref<string>('')
 
 function onSubmit() {
@@ -11,22 +11,13 @@ function onSubmit() {
     return
   }
 
-  tasks.value.push({ id: taskName.value, label: taskName.value, isDone: false })
+  tasks.push({ id: taskName.value, label: taskName.value, isDone: false })
 
   taskName.value = ''
 }
 
-function toggleTask(id: string) {
-  tasks.value = tasks.value.map((task) => {
-    if (task.id === id) {
-      return {
-        ...task,
-        isDone: !task.isDone
-      }
-    }
-
-    return task
-  })
+function toggleTask(idx: number) {
+  tasks[idx].isDone = !tasks[idx].isDone
 }
 </script>
 
@@ -48,21 +39,23 @@ function toggleTask(id: string) {
 
     <ul v-if="tasks.length" class="tasks-container">
       <li
-        v-for="task in tasks"
+        v-for="(task, index) in tasks"
         class="task"
         :key="task.id"
-        @click="toggleTask(task.id)"
+        @click="toggleTask(index)"
         :class="{
           done: task.isDone
         }"
       >
-        {{ task.label }}
+        {{ task.label }} - {{ index }}
+
+        <span v-if="task.isDone">doned</span>
       </li>
     </ul>
   </main>
 </template>
 
-<style lang="css">
+<style lang="css" scoped>
 .container {
   width: 100%;
   max-width: 720px;
